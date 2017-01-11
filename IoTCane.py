@@ -1,3 +1,4 @@
+
 # test BLE Scanning software
 # jcs 6/8/2014
 import MySQLdb
@@ -47,11 +48,6 @@ def motorBoth() :
     gpio.output(pin3, True)
     gpio.output(pin4, False)
 
-def motorLeft():
-    gpio.output(pin1, True)
-    gpio.output(pin2, False)
-    gpio.output(pin2, True)
-    gpio.output(pin3, True)
 
 def motorRight():
     gpio.output(pin1, True)
@@ -64,6 +60,7 @@ def motorZero() :
     gpio.output(pin2, True)
     gpio.output(pin3, True)
     gpio.output(pin4, True)
+
 
 def calculateD(txpower, rssi) :
     if(rssi == 0) :
@@ -83,7 +80,7 @@ def say(words):
     subprocess.call(["pico2wave", "-w", tempfile, words],stderr=devnull)
     subprocess.call(["aplay", tempfile],stderr=devnull)
     lock.release()
-# os.remove(tempfile)
+
 
 def Beacon():
     while True :
@@ -116,15 +113,17 @@ def Beacon():
                     distance = calculateD(txPowerint,rssiint)
                     distanceTemp = round(distance, 2)
                     distanceStr = str(distanceTemp)
-                    print distance
-                    print str(MAC_ADDRESS) +", "+str(Location) + "," + str(distanceStr)
+#                   print distance              
+                    print row
+                    print str(MAC_ADDRESS) +", "+str(Location) + "," + str(distanceStr) + " meters left"
                     distanceVoice = distanceStr +"meters  left"
 
-                    if distance < 2 :
+                    if distance < 1.5 :
                         if Severity == 1 :
                             motorRight()
                             print("Dangerous There is an obstacle")
                             say("Dangerous There is an obstacle")
+#                           continue
                             time.sleep(3)
                         else :
                             motorZero()
@@ -133,7 +132,7 @@ def Beacon():
                             say(Location)
                             say(distanceVoice)
                             time.sleep(1)
-		`	   continue
+                            continue
                         elif os.path.isfile(sys.argv[1]):
                             fi=open(sys.argv[1],'r')
                             text=fi.read()
@@ -143,7 +142,6 @@ def Beacon():
                             for i in range(1,len(sys.argv)):
                                 sentence=sentence+sys.argv[i]
                             say(sentence)
-
 
 def Ultra():
     while True :
@@ -237,7 +235,7 @@ def Ultra():
             sentenceL="watch out Left Side"
             say(sentenceL)
             print(sentenceL)
-            time.sleep(1)
+             time.sleep(1)
         else :
             motorZero()
 
@@ -246,10 +244,11 @@ def Ultra():
                 motorBoth()
                 sentenceBarrier = "it seems there is a wall"
                 say(sentenceBarrier)
+                print(sentenceBarrier)
                 time.sleep(1)
             else :
                 motorRight()
-        time.sleep(5)
+         time.sleep(5)
 
 dev_id = 0
 try:
@@ -267,7 +266,7 @@ blescan.hci_enable_le_scan(sock)
 db=MySQLdb.connect("localhost","root","1234","beacondb")
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
-sql = "SELECT * FROM info"
+sql = "SELECT * FROM beacon"
 cursor.execute(sql)
 result = cursor.fetchall()
 
@@ -277,10 +276,7 @@ try:
     b = Process(target=Ultra)
     a.start()
     b.start()
-   # th1 = Thread(target=Beacon)
-   # th2 = Thread(target=Ultra)
-   # th1.start()
-   # th2.start()
+
 except:
     gpio.cleanup()
     motorZero()
