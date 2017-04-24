@@ -2,13 +2,14 @@
 # JCS 06/07/14
 
 DEBUG = False
+# 
 # BLE scanner based on https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # BLE scanner, based on https://code.google.com/p/pybluez/source/browse/trunk/examples/adva
 # https://github.com/pauloborges/bluez/blob/master/tools/hcitool.c for lescan
 # https://kernel.googlesource.com/pub/scm/bluetooth/bluez/+/5.6/lib/hci.h for opcodes
 # https://github.com/pauloborges/bluez/blob/master/lib/hci.c#L2782 for functions used by le
 
-# performs a simple device inquiry, and returns a list of ble advertizements 
+# performs a simple device inquiry, and returns a list of ble advertizements
 # discovered device
 
 # NOTE: Python's struct.pack() will add padding bytes unless you make the endianness explic
@@ -110,7 +111,7 @@ def parse_events(sock, loop_count=100):
    for i in range(0, loop_count):
       pkt = sock.recv(255)
       ptype, event, plen = struct.unpack("BBB", pkt[:3])
-      #print "--------------" 
+      #print "--------------"
       if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
          i =0
       elif event == bluez.EVT_NUM_COMP_PKTS:
@@ -148,5 +149,3 @@ def parse_events(sock, loop_count=100):
             done = True
    sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
    return myFullList
-
-
